@@ -75,15 +75,29 @@ class CMIP6Adder(object):
             errors = True
 
         for root, dirs, files in os.walk(path):
-            for fn in files:                
-                if not self._perms_checker.check_access(os.path.join(root, fn), 
-                                            'r', messages=messages):
-                    errors = True
+            for fn in files:
+                file_path = os.path.join(root, fn)
                 if fn.endswith('.nc'):
                     have_ncdf = True
-        
+                    if not self._perms_checker.check_access(file_path, 
+                                                            'r', messages=messages):
+                        errors = True
+                else:
+                    messages.append('invalid filename:\n   {}'.format(file_path))
+                    errors = True
+                    
+            # also check (non-recursively) that directories are readable
+            # (if they contain any files then execute permission will get checked
+            # as part of checking the files)
+            for dn in dirs:
+                dir_path = os.path.join(root, dn)
+                if not self._perms_checker.check_access(dir_path, 
+                                                        'r',
+                                                        messages=messages):
+                    errors = True
+
         if not have_ncdf:
-            messages.append("{} does not contain any *.nc file".format(path))
+            messages.append("does not contain any valid files")
             errors = True
             
         if errors:
@@ -94,6 +108,7 @@ class CMIP6Adder(object):
 
     def _add_dataset_dir(self, path, dataset_id):
         "adds specified dataset directory to CREPP and parse the response"
+        
         print(self._requester,
               self._chain,
               self._configuration,

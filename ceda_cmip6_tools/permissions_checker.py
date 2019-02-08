@@ -55,7 +55,7 @@ class UserPermissionsChecker(object):
             return os.path.normpath(os.path.join(start_dir, path))
 
 
-    def check_access(self, path, access, check_whole_path=True, messages=None):
+    def check_access(self, path, access, check_dir_access=True, messages=None):
         """
         Checks if the user can access a given path with the required level of 
         access.  Raise an exception if not.
@@ -63,7 +63,7 @@ class UserPermissionsChecker(object):
         Access can be an integer (0-7) which corresponds to the required access,
         or a string such as "r", "rx", "rw" (integer values 4, 5, 6 respectively)
 
-        If check_whole_path is set to True, then it will check that there is at 
+        If check_dir_access is set to True, then it will check that there is at 
         least execute permission on the parent directories.
 
         If a list is passed in as 'messages', then instead of raising an exception, 
@@ -122,7 +122,7 @@ class UserPermissionsChecker(object):
                 raise Exception(message)
 
         recurse = []
-        if check_whole_path and path != "/":
+        if check_dir_access and path != "/":
             parent = os.path.dirname(path)
             recurse.append(parent)
         
