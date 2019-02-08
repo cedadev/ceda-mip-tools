@@ -45,14 +45,6 @@ class CMIP6Adder(object):
         return args
 
     
-    def _contains_ncdf_file(self, path):
-        for root, dirs, files in os.walk(path):
-            for fn in files:
-                if fn.endswith('.nc'):
-                    return True
-        return False
-
-    
     def _validate_dataset_dir(self, path):
         """
         check that the files under the dataset directory are ingestable
