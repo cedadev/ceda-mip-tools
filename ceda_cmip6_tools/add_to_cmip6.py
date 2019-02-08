@@ -100,13 +100,34 @@ class CMIP6Adder(object):
 
     def _add_dataset_dir(self, path, dataset_id):
         "adds specified dataset directory to CREPP and parse the response"
+       
+        url = self._api_url
+
+        params = {'chain': self._chain,
+                  'config': self._configuration,
+                  'dataset_id': dataset_id,
+                  'directory': path,
+                  'requester': self._requester}
         
-        print(self._requester,
-              self._chain,
-              self._configuration,
-              self._api_url,
-              path, 
-              dataset_id)
+        response = requests.post(url, data=params)
+
+        if response.status_code != 200:
+            print(response.status_code)
+            raise Exception("Could not talk to data publication system")
+        
+        try:
+            fields = response.json()
+            status = fields['status']
+        except (ValueError, KeyError):
+            raise Exception("Could not parse response from CMIP6 publication system")
+        
+        if status != 0:
+            message = 'CMIP6 publication system did not accept dataset'
+            try:
+                message += ': ' + fields['message']
+            except KeyError:
+                pass
+            raise Exception(message)
 
 
     def run(self):
