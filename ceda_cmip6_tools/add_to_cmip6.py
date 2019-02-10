@@ -29,20 +29,17 @@ class CMIP6Adder(object):
     def _parse_args(self, arg_list=None):
 
         "Parses arguments and returns parsed args object."
-        parser = argparse.ArgumentParser(description=__doc__)
 
-        parser.add_argument("dirs", nargs="*",
-                            metavar="directory", 
-                            help=("Dataset directory. "
-                                  "Must have format ${BASEDIR}/${DRS_DIRS}/${VERSION_DIR}. "
-                                  "Any number of directories may be specified. "
-                                  "If none are, then a list is read from standard input "
-                                  "(one per line)."))
+        dirs_help = ("Dataset directory. "
+                     "Must have format ${BASEDIR}/${DRS_DIRS}/${VERSION_DIR}. "
+                     "Any number of directories may be specified.")
+
+        parser = util.ArgsFromCmdLineOrFileParser('dirs', 'dataset directories', 
+                                                  var_meta='directory',
+                                                  var_help=dirs_help,
+                                                  description=__doc__)
 
         args = parser.parse_args(arg_list or sys.argv[1:])
-
-        if not args.dirs:
-            args.dirs = [line.strip() for line in sys.stdin]
 
         return args
 
