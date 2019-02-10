@@ -100,9 +100,16 @@ class CMIP6StatusChecker(object):
         query_params = { 'dataset_id': ','.join(dataset_ids),
                          'chain': self._chain,
                          'configuration': self._configuration,
-                         'requester': self._requester }
+                         'requester': self._requester,
+                         'max_items': len(dataset_ids) }
 
         fields = self._get_response(query_params)
+
+        # this following assertion would fail if either:
+        # - dataset ID matches more than one dataset (it shouldn't because configuration is in the query)
+        # - or if server disallows the number we asked for simultaneously
+        assert(len(fields['datasets']) == fields['num_found'])
+
         results_dict = dict((ds['dataset_id'], ds['status']) for ds in fields['datasets'])
 
         return [(dataset_id, results_dict.get(dataset_id, 'UNKNOWN'))
