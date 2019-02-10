@@ -2,6 +2,7 @@ import os
 import pwd
 import sys
 import argparse
+import requests
 
 import ceda_cmip6_tools.config as config
 
@@ -10,6 +11,29 @@ def get_user_name():
     "get a user name (to use as the requester)"
     name = pwd.getpwuid(os.getuid()).pw_gecos
     return name[: config.max_requester_len]
+
+
+def do_post_expecting_json(url, params, 
+                           description="web service",
+                           compulsory_fields=()):
+    """
+    POST the params to the specified URL.
+    Return the parsed JSON.
+    Raise an exception if any required fields are missing.
+    """
+    response = requests.post(url, data=params)
+
+    if response.status_code != 200:
+        raise Exception("Could not talk to {}".format(description))
+        
+    try:
+        fields = response.json()
+        for key in compulsory_fields:
+            dummy = fields[key]
+    except (ValueError, KeyError):
+        raise Exception("Could not parse response from {}".format(description))
+    return fields
+    
 
 
 class ArgsFromCmdLineOrFileParser(object):

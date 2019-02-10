@@ -26,7 +26,8 @@ setup(
     zip_safe=False,
     entry_points={
         'console_scripts': [
-            'add-to-cmip6 = ceda_cmip6_tools.add_to_cmip6:main'
+            'add-to-cmip6 = ceda_cmip6_tools.add_to_cmip6:main',
+            'cmip6-dataset-status = ceda_cmip6_tools.cmip6_dataset_status:main'
             ],
         }
 )

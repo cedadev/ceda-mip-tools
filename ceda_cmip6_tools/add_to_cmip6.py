@@ -4,8 +4,6 @@ Adds CMIP6 dataset(s) for ingestion to CEDA archive and publication to ESGF.
 
 import os
 import sys
-import requests
-import argparse
 
 from ceda_cmip6_tools import config, util, dataset_drs
 from ceda_cmip6_tools.permissions_checker import UserPermissionsChecker
@@ -124,19 +122,11 @@ class CMIP6Adder(object):
                   'directory': path,
                   'requester': self._requester}
         
-        response = requests.post(url, data=params)
-
-        if response.status_code != 200:
-            print(response.status_code)
-            raise Exception("Could not talk to data publication system")
+        fields = util.do_post_expecting_json(url, params,
+                                             description='CMIP6 publication system',
+                                             compulsory_fields=('status',))
         
-        try:
-            fields = response.json()
-            status = fields['status']
-        except (ValueError, KeyError):
-            raise Exception("Could not parse response from CMIP6 publication system")
-        
-        if status != 0:
+        if fields['status'] != 0:
             message = 'CMIP6 publication system did not accept dataset'
             try:
                 message += ': ' + fields['message']
