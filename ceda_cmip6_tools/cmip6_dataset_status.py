@@ -70,6 +70,7 @@ class CMIP6StatusChecker(object):
 
     
     def _get_dataset_id(self, dataset_spec):
+        "Turn a dataset spec (dataset ID or doc string) into a dataset ID"
 
         if '/' in dataset_spec:
             dataset_id = dataset_drs.dir_to_dataset_id(dataset_spec)
@@ -94,6 +95,7 @@ class CMIP6StatusChecker(object):
 
 
     def _get_dataset_status(self, dataset_id):
+        "Query the API and get the status string (or None if not found)"
 
         query_params = { 'dataset_id': dataset_id,
                          'chain': self._chain,
@@ -107,6 +109,8 @@ class CMIP6StatusChecker(object):
 
 
     def _get_results_for_status(self, status):
+        """Query the API for all datasets with specified status, 
+        and translate the results into a _Results object"""
 
         query_params = { 'dataset_id': '**',
                          'chain': self._chain,
@@ -117,8 +121,8 @@ class CMIP6StatusChecker(object):
             query_params['status'] = status
 
         fields = self._get_response(query_params)
-        return Results([(ds['dataset_id'], ds['status'])
-                        for ds in fields['datasets']])
+        return ([(ds['dataset_id'], ds['status'])
+                 for ds in fields['datasets']])
 
 
     def _get_response(self, query_params):
@@ -139,10 +143,12 @@ class CMIP6StatusChecker(object):
         dataset_ids = self._get_dataset_ids(args)
         
         if dataset_ids:
-            results = Results([(dataset_id, self._get_dataset_status(dataset_id) or 'UNKNOWN')
-                               for dataset_id in dataset_ids])
+            results = ([(dataset_id, self._get_dataset_status(dataset_id) or 'UNKNOWN')
+                        for dataset_id in dataset_ids])
         else:
             results = self._get_results_for_status(args.status)
+
+        results = _ResultsWriter(results)
         
         if args.overwrite:
             results.allow_overwrite()
@@ -158,7 +164,7 @@ class CMIP6StatusChecker(object):
 
 
 
-class Results(object):
+class _ResultsWriter(object):
 
     def __init__(self, results):
         self.results = list(results)
@@ -195,7 +201,7 @@ class Results(object):
                 raise Exception("Not overwriting file {}".format(path))
             return open(path, "w")            
 
-    def write_csv(self, path, overwrite=False):
+    def write_csv(self, path):
         with self._get_write_fh(path) as f:
             row_writer = csv.writer(f).writerow
             row_writer(self._headers)
@@ -204,7 +210,7 @@ class Results(object):
         if path != '-':
             print('wrote ' + path)
 
-    def write_json(self, path, overwrite=False):
+    def write_json(self, path):
         all = {}
         datasets = []
         headers = [s.lower().replace(' ', '_') for s in self._headers]
