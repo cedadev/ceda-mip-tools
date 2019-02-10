@@ -16,7 +16,7 @@ class CMIP6Adder(object):
     def __init__(self,
                  chain=config.chain,
                  configuration=config.configuration,
-                 api_url=config.api_url,
+                 api_url=config.add_api_url,
                  requester=None):
         self._chain = chain
         self._configuration = configuration
@@ -153,7 +153,7 @@ class CMIP6Adder(object):
                 dataset_id = self._validate_dataset_dir(path)
                 self._add_dataset_dir(path, dataset_id)
             except Exception as exc:
-                print("ERROR: adding directory {}: {}".format(path, exc))
+                print("ERROR: adding directory {} as ID {}: {}".format(path, dataset_id, exc))
                 continue
             print("INFO: added directory {}\n(dataset id = {}".format(path, dataset_id))
         print()

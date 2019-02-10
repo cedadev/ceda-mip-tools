@@ -1,6 +1,7 @@
 chain = 'CMIP6-user'
 configuration = 'esgf-prod'
-api_url = 'https://ppln.ceda.ac.uk/api/add_dataset/'
+add_api_url = 'https://ppln.ceda.ac.uk/api/add_dataset/'
+query_api_url = 'https://ppln.ceda.ac.uk/api/dataset/'
 max_requester_len = 32
 ingestion_user = 'badc'
 
