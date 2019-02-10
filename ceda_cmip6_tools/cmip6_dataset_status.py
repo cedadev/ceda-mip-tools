@@ -120,9 +120,23 @@ class CMIP6StatusChecker(object):
         if status != 'ALL':
             query_params['status'] = status
 
-        fields = self._get_response(query_params)
-        return ([(ds['dataset_id'], ds['status'])
-                 for ds in fields['datasets']])
+
+        # paginated query
+        # on the last page, 'cursor' is not set, and it will return
+        all = []
+        while True:
+            fields = self._get_response(query_params)
+            
+            all.extend(((ds['dataset_id'], ds['status'])
+                        for ds in fields['datasets']))
+            
+            if 'cursor' in fields:
+                if 'cursor' in query_params:
+                    # sanity check against infinite loop
+                    assert(query_params['cursor'] != fields['cursor'])
+                query_params['cursor'] = fields['cursor']
+            else:
+                return all
 
 
     def _get_response(self, query_params):
