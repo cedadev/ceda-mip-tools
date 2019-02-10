@@ -1,3 +1,7 @@
+"""
+Adds CMIP6 dataset(s) for ingestion to CEDA archive and publication to ESGF.
+"""
+
 import os
 import sys
 import requests
@@ -5,9 +9,6 @@ import argparse
 
 from ceda_cmip6_tools import config, util, dataset_drs
 from ceda_cmip6_tools.permissions_checker import UserPermissionsChecker
-
-
-"Adds CMIP6 dataset(s) for ingestion to CEDA archive and publication to ESGF."
 
 
 class CMIP6Adder(object):
