@@ -9,8 +9,9 @@ from ceda_cmip6_tools.permissions_checker import UserPermissionsChecker
 
 "Adds CMIP6 dataset(s) for ingestion to CEDA archive and publication to ESGF."
 
+
 class CMIP6Adder(object):
-    
+
     def __init__(self,
                  chain=config.chain,
                  configuration=config.configuration,
@@ -62,8 +63,14 @@ class CMIP6Adder(object):
         have_ncdf = False
 
         messages = []
+        permissions = []
+        checker_args = {
+            'messages': messages,
+            'permissions': permissions,
+            'continue_on_error': True 
+            }
 
-        if not self._perms_checker.check_access(path, 'rx', messages=messages):
+        if not self._perms_checker.check_access(path, 'rx', **checker_args):
             errors = True
 
         for root, dirs, files in os.walk(path):
@@ -72,10 +79,10 @@ class CMIP6Adder(object):
                 if fn.endswith('.nc'):
                     have_ncdf = True
                     if not self._perms_checker.check_access(file_path, 
-                                                            'r', messages=messages):
+                                                            'r', **checker_args):
                         errors = True
                 else:
-                    messages.append('invalid filename:\n   {}'.format(file_path))
+                    messages.append('invalid filename (not *.nc):\n   {}'.format(file_path))
                     errors = True
                     
             # also check (non-recursively) that directories are readable
@@ -85,7 +92,7 @@ class CMIP6Adder(object):
                 dir_path = os.path.join(root, dn)
                 if not self._perms_checker.check_access(dir_path, 
                                                         'r',
-                                                        messages=messages):
+                                                        **checker_args):
                     errors = True
 
         if not have_ncdf:
@@ -93,7 +100,17 @@ class CMIP6Adder(object):
             errors = True
             
         if errors:
-            raise Exception('\n'.join(['dataset cannot be ingested'] + messages))
+            message = '\n'.join(['dataset cannot be ingested'] + messages)
+
+            for path, stat_data in permissions:
+                if stat_data.st_uid == 0:
+                    drawline = "=" * 80 + "\n"
+                    message += ("\n{}Please email support@ceda.ac.uk "
+                                "to ask for user '{}' to be given access to\n"
+                                "{}\n{}").format(drawline, config.ingestion_user,
+                                                 path, drawline)
+
+            raise Exception(message)
 
         return dataset_id
 

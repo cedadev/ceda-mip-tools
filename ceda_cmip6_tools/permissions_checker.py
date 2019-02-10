@@ -55,7 +55,8 @@ class UserPermissionsChecker(object):
             return os.path.normpath(os.path.join(start_dir, path))
 
 
-    def check_access(self, path, access, check_dir_access=True, messages=None):
+    def check_access(self, path, access, continue_on_error=False,
+                     **kwargs):
         """
         Checks if the user can access a given path with the required level of 
         access.  Raise an exception if not.
@@ -66,10 +67,17 @@ class UserPermissionsChecker(object):
         If check_dir_access is set to True, then it will check that there is at 
         least execute permission on the parent directories.
 
-        If a list is passed in as 'messages', then instead of raising an exception, 
-        on finding a permissions error, a message will be appended to the list, and
-        the processing will continue scanning parent directories.  
-        (Other exceptions are not affected.)
+        If a list is passed in as 'messages', then on finding a
+        permissions error, a message will be appended to the list.
+
+        If a list is passed in as 'permissions', then on finding a
+        permissions error, a 2-tuple (path, stat_data) will be
+        appended to the list.
+
+        If continue_on_error=True, then on finding a permissions
+        error, instead of raising an exception, the processing will
+        continue scanning parent directories.  (Other exceptions are
+        not affected.)
         """
         if isinstance(access, int):
             if not 0 <= access <= 7:
@@ -79,14 +87,31 @@ class UserPermissionsChecker(object):
         else:
             raise ValueError('access has invalid type')
 
-        cache_key = (access, path)
-        if cache_key in self._cache:
-            return self._cache[cache_key]
-
-        errors = False
-
         if not path.startswith("/"):
             path = self._abs_path(os.getcwd(), path)
+
+        cache_key = (access, path)
+        if cache_key not in self._cache:
+            self._cache[cache_key] = self._check_access(path, access, 
+                                                        continue_on_error=continue_on_error,
+                                                        **kwargs)
+
+        ret_val = self._cache[cache_key]
+        
+        if (not continue_on_error) and (ret_val == False):
+            raise Exception(("permissions error affecting {} "
+                             "(cached result - see earlier message for details)"
+                             ).format(path))
+
+        return ret_val
+
+
+    def _check_access(self, path, access, check_dir_access=True, 
+                      messages=None, permissions=None,
+                      continue_on_error=False):
+
+
+        errors = False
 
         s = os.stat(path)
         uid = s.st_uid
@@ -118,7 +143,11 @@ class UserPermissionsChecker(object):
             errors = True
             if isinstance(messages, list):
                 messages.append(message)
-            else:
+
+            if isinstance(permissions, list):
+                permissions.append((path, s))
+
+            if not continue_on_error:
                 raise Exception(message)
 
         recurse = []
@@ -133,14 +162,13 @@ class UserPermissionsChecker(object):
                 recurse.append(parent2)
 
         for d in recurse:
-            if not self.check_access(d, "x", messages=messages):
+            if not self.check_access(d, "x",
+                                     messages=messages,
+                                     permissions=permissions,
+                                     continue_on_error=continue_on_error):
                 errors = True
                                 
-        ret_val = not errors
-
-        self._cache[cache_key] = ret_val
-
-        return ret_val
+        return not errors
 
 
 if __name__ == '__main__':
@@ -154,5 +182,12 @@ if __name__ == '__main__':
         f1, f2, f1, f2 ]:
 
         messages = []
-        print(f, upc.check_access(f, 'r', messages=messages))
+        permissions = []
+        print(f, upc.check_access(f, 'r', 
+                                  messages=messages, permissions=permissions,
+                                  continue_on_error=True))
         [print(m) for m in messages]
+        [print("{:o} {}".format(s.st_mode, p)) for p, s in permissions]
+
+
+    print(upc.check_access(f2, 'r'))
