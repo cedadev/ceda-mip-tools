@@ -94,18 +94,26 @@ class CMIP6StatusChecker(object):
         return [self._get_dataset_id(spec) for spec in args.dataset_specs]
 
 
-    def _get_dataset_status(self, dataset_id):
-        "Query the API and get the status string (or None if not found)"
+    def _get_dataset_statuses_page(self, dataset_ids):
+        "Query the API for multiple datasets, and get the status string (or None if not found)"
 
-        query_params = { 'dataset_id': dataset_id,
+        query_params = { 'dataset_id': ','.join(dataset_ids),
                          'chain': self._chain,
                          'configuration': self._configuration,
                          'requester': self._requester }
 
         fields = self._get_response(query_params)
-        if fields['num_found'] != 1:
-            return None
-        return fields['datasets'][0]['status']
+        results_dict = dict((ds['dataset_id'], ds['status']) for ds in fields['datasets'])
+
+        return [(dataset_id, results_dict.get(dataset_id, 'UNKNOWN'))
+                for dataset_id in dataset_ids]
+
+
+    def _get_dataset_statuses(self, dataset_ids):
+        results = []
+        for page in util.paginate_list(dataset_ids, config.max_query_datasets):
+            results.extend(self._get_dataset_statuses_page(page))
+        return results
 
 
     def _get_results_for_status(self, status):
@@ -157,8 +165,7 @@ class CMIP6StatusChecker(object):
         dataset_ids = self._get_dataset_ids(args)
         
         if dataset_ids:
-            results = ([(dataset_id, self._get_dataset_status(dataset_id) or 'UNKNOWN')
-                        for dataset_id in dataset_ids])
+            results = self._get_dataset_statuses(dataset_ids)
         else:
             results = self._get_results_for_status(args.status)
 

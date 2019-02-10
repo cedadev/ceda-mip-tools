@@ -35,6 +35,10 @@ def do_post_expecting_json(url, params,
     return fields
     
 
+def paginate_list(lst, count):
+    for i in range(0, len(lst), count):
+        yield lst[i : i+count]
+
 
 class ArgsFromCmdLineOrFileParser(object):
     """
