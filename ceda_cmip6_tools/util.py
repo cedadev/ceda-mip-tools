@@ -21,7 +21,7 @@ def do_post_expecting_json(url, params,
     Return the parsed JSON.
     Raise an exception if any required fields are missing.
     """
-    response = requests.post(url, data=params)
+    response = requests.post(url, data=params, timeout=config.timeout)
 
     if response.status_code != 200:
         raise Exception("Could not talk to {}".format(description))

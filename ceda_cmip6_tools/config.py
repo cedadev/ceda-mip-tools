@@ -5,6 +5,7 @@ query_api_url = 'https://ppln.ceda.ac.uk/api/dataset/'
 max_query_datasets = 200
 max_requester_len = 32
 ingestion_user = 'badc'
+timeout = 5.
 
 num_facets = 10
 
