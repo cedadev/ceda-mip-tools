@@ -141,6 +141,10 @@ class CMIP6Adder(object):
             print()
             try:
                 dataset_id = self._validate_dataset_dir(path)
+            except Exception as exc:
+                print("ERROR: validating dataset directory {}: {}".format(path, exc))
+                continue
+            try:
                 self._add_dataset_dir(path, dataset_id)
             except Exception as exc:
                 print("ERROR: adding directory {} as ID {}: {}".format(path, dataset_id, exc))
