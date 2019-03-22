@@ -1,4 +1,4 @@
-chain = 'CMIP6-user'
+chain = 'CMIP6-fromdisk'
 configuration = 'esgf-prod'
 add_api_url = 'https://ppln.ceda.ac.uk/api/add_dataset/'
 query_api_url = 'https://ppln.ceda.ac.uk/api/dataset/'
