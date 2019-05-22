@@ -15,10 +15,10 @@ def get_gws_root_from_path(path):
     if path.startswith("/gws/"):
         depth = 4
 
-    elif path.startswith("/group_workspaces"):
+    elif path.startswith("/group_workspaces/"):
         depth = 3
 
-    elif '_USE_TEST_GWS' in os.environ and path.startswith("/tmp"):
+    elif '_USE_TEST_GWS' in os.environ and path.startswith("/tmp/"):
         depth = 2
 
     else:
