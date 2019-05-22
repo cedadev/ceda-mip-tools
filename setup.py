@@ -27,7 +27,16 @@ setup(
     entry_points={
         'console_scripts': [
             'add-to-cmip6 = ceda_cmip6_tools.add_to_cmip6:main',
-            'cmip6-dataset-status = ceda_cmip6_tools.cmip6_dataset_status:main'
+            'cmip6-dataset-status = ceda_cmip6_tools.cmip6_dataset_status:main',
+            'init-cmip6-migrations = ceda_cmip6_tools.init_cmip6_migrations:main',
+            'request-cmip6-migration = ceda_cmip6_tools.request_cmip6_migration:main',
+            'request-cmip6-retrieval = ceda_cmip6_tools.request_cmip6_retrieval:main',
+            'list-cmip6-requests = ceda_cmip6_tools.list_cmip6_requests:main',
+            'withdraw-cmip6-migration-request = ceda_cmip6_tools.withdraw_cmip6_migration_request:main',
+            'withdraw-cmip6-retrieval-request = ceda_cmip6_tools.withdraw_cmip6_retrieval_request:main',
             ],
         }
 )
+
+
+

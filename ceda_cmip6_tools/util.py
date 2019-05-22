@@ -2,9 +2,9 @@ import os
 import pwd
 import sys
 import argparse
-#import requests
+import requests
 
-import config
+import ceda_cmip6_tools.config as config
 
 
 def get_user_login_name():

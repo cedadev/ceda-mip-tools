@@ -3,7 +3,7 @@ from enum import Enum
 import datetime
 import re
 
-from util import get_user_login_name
+from ceda_cmip6_tools.util import get_user_login_name
 
 
 class RequestStatus(Enum):

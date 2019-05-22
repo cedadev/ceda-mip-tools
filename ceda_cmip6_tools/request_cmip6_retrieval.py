@@ -2,8 +2,8 @@ import sys
 import argparse
 
 
-from cmip6_migration_request_lib import RetrieveRequestsManager
-import gws
+from ceda_cmip6_tools import gws
+from ceda_cmip6_tools.cmip6_migration_request_lib import RetrieveRequestsManager
 
 
 def parse_args(arg_list = None):
@@ -39,8 +39,3 @@ def main():
 
     print("created request")
     request.dump()
-
-
-if __name__ == '__main__':
-    main()
-

@@ -2,8 +2,8 @@ import sys
 import argparse
 
 
-from cmip6_migration_request_lib import MigrateRequestsManager, RetrieveRequestsManager
-import gws
+from ceda_cmip6_tools import gws
+from ceda_cmip6_tools.cmip6_migration_request_lib import MigrateRequestsManager, RetrieveRequestsManager
 
 
 def parse_args(arg_list = None):
@@ -28,8 +28,3 @@ def main():
     for cls in MigrateRequestsManager, RetrieveRequestsManager:
         mgr = cls(gws_root)
         mgr.initialise()
-
-
-if __name__ == '__main__':
-    main()
-

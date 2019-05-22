@@ -2,9 +2,9 @@ import sys
 import argparse
 
 
-from cmip6_migration_request_lib import \
+from ceda_cmip6_tools import gws
+from ceda_cmip6_tools.cmip6_migration_request_lib import \
     MigrateRequestsManager, RetrieveRequestsManager, RequestStatus
-import gws
 
 
 def parse_args(arg_list = None):
@@ -41,8 +41,3 @@ def main():
         for req in mgr.scan(all_users = args.all_users,
                             statuses=statuses):
             req.dump()
-
-
-if __name__ == '__main__':
-    main()
-
