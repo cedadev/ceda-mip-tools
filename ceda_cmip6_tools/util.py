@@ -2,13 +2,18 @@ import os
 import pwd
 import sys
 import argparse
-import requests
+#import requests
 
-import ceda_cmip6_tools.config as config
+import config
+
+
+def get_user_login_name():
+    "get a user login name"
+    return pwd.getpwuid(os.getuid()).pw_name
 
 
 def get_user_name():
-    "get a user name (to use as the requester)"
+    "get a user full name (to use as the requester)"
     name = pwd.getpwuid(os.getuid()).pw_gecos
     return name[: config.max_requester_len]
 
