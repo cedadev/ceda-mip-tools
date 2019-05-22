@@ -2,7 +2,7 @@ import sys
 import argparse
 
 
-from request_file_manager import MigrateRequestsManager
+from cmip6_migration_request_lib import MigrateRequestsManager
 import gws
 
 

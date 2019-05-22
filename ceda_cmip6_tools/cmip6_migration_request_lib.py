@@ -95,7 +95,7 @@ class RequestBase(object):
 
     def __str__(self):
         user, reqid, date = self.requests_mgr.parse_filename(self.filename)
-        return '<{} request: user={} reqid={} date={} status={}>'.format(
+        return '<{} request: user={} id={} date={} status={}>'.format(
             self.request_type,
             user, reqid, date, 
             self.status.name)
