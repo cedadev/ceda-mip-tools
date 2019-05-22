@@ -38,6 +38,6 @@ def main():
 
     for cls in MigrateRequestsManager, RetrieveRequestsManager:
         mgr = cls(gws_root)
-        for req in mgr.scan(all_users = args.all_users,
+        for req in mgr.scan(all_users=args.all_users,
                             statuses=statuses):
             req.dump()
