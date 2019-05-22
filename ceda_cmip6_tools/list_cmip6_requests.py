@@ -21,7 +21,7 @@ def parse_args(arg_list = None):
                         action='store_true')
 
     parser.add_argument('-c', '--current',
-                        help='only show requests with status NOT_STARTED or DOING',
+                        help='only show requests with status NEW or SUBMITTED',
                         action='store_true')
 
     return parser.parse_args()
@@ -34,7 +34,7 @@ def main():
 
     statuses = None
     if args.current:
-        statuses = (RequestStatus.NOT_STARTED, RequestStatus.DOING)
+        statuses = (RequestStatus.NEW, RequestStatus.SUBMITTED)
 
     for cls in MigrateRequestsManager, RetrieveRequestsManager:
         mgr = cls(gws_root)

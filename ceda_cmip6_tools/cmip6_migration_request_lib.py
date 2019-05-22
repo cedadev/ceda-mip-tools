@@ -8,8 +8,8 @@ from ceda_cmip6_tools.util import get_user_login_name
 
 class RequestStatus(Enum):
     CREATING = 0
-    NOT_STARTED = 1
-    DOING = 2
+    NEW = 1
+    SUBMITTED = 2
     DONE = 3
     FAILED = 4
     WITHDRAWN = 5
@@ -41,7 +41,7 @@ class RequestBase(object):
 
     def create(self, *args, **kwargs):
         self._write(*args, **kwargs)
-        self.set_status(RequestStatus.NOT_STARTED)
+        self.set_status(RequestStatus.NEW)
 
 
     def read(self):
@@ -232,8 +232,8 @@ class RequestsManagerBase(object):
     def withdraw(self, reqid):
         req = self.get_by_id(reqid)
 
-        if req.status != RequestStatus.NOT_STARTED:
-            raise Exception(('Withdraw only supported for status NOT_STARTED.'
+        if req.status != RequestStatus.NEW:
+            raise Exception(('Withdraw only supported for status NEW.'
                              ' Current status = {}').format(req.status.name))
             
         req.set_status(RequestStatus.WITHDRAWN)
@@ -333,8 +333,8 @@ class MigrateRequestsManager(RequestsManagerBase):
     
     dir_lookup = { 
         RequestStatus.CREATING: '.creating_migrate',
-        RequestStatus.NOT_STARTED: 'to-migrate',
-        RequestStatus.DOING: 'migrating',
+        RequestStatus.NEW: 'to-migrate',
+        RequestStatus.SUBMITTED: 'migrating',
         RequestStatus.DONE: 'migrated',
         RequestStatus.FAILED: 'failed-migrations',
         RequestStatus.WITHDRAWN: 'withdrawn-migrations'
@@ -349,8 +349,8 @@ class RetrieveRequestsManager(RequestsManagerBase):
 
     dir_lookup = {
         RequestStatus.CREATING: '.creating_retrieve',
-        RequestStatus.NOT_STARTED: 'to-retrieve',
-        RequestStatus.DOING: 'retrieving',
+        RequestStatus.NEW: 'to-retrieve',
+        RequestStatus.SUBMITTED: 'retrieving',
         RequestStatus.DONE: 'retrieved',
         RequestStatus.FAILED: 'failed-retrievals',       
         RequestStatus.WITHDRAWN: 'withdrawn-retrievals'
@@ -366,5 +366,5 @@ if __name__ == '__main__':
     
     r = MigrateRequestsManager('/tmp/mygws')
     r.initialise()
-    print(r.get_dir_for_status(RequestStatus.NOT_STARTED))
+    print(r.get_dir_for_status(RequestStatus.NEW))
 
