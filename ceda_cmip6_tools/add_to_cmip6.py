@@ -137,22 +137,28 @@ class CMIP6Adder(object):
 
     def run(self):
         args = self._parse_args()
+        errors = False
         for path in args.dirs:
             print()
             try:
                 dataset_id = self._validate_dataset_dir(path)
             except Exception as exc:
                 print("ERROR: validating dataset directory {}: {}".format(path, exc))
+                errors = True
                 continue
             try:
                 self._add_dataset_dir(path, dataset_id)
             except Exception as exc:
                 print("ERROR: adding directory {} as ID {}: {}".format(path, dataset_id, exc))
+                errors = True
                 continue
             print("INFO: added directory {}\n(dataset id = {}".format(path, dataset_id))
         print()
+        exit_status = (1 if errors else 0)
+        return exit_status
+        
 
 def main():
     c6a = CMIP6Adder()
-    c6a.run()
-    
+    exit_status = c6a.run()
+    sys.exit(exit_status)
