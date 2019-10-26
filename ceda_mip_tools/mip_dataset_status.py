@@ -1,5 +1,5 @@
 """
-Checks the publication status of CMIP6 dataset(s)
+Checks the publication status of MIP dataset(s)
 """
 
 import os
@@ -9,30 +9,26 @@ import argparse
 import json
 import csv
 
-from ceda_cmip6_tools import config, util, dataset_drs
+from ceda_mip_tools import config, util
 
 
 _statuses = ['not_started', 'in_progress', 'completed', 'failed', 'ALL']
 
-class CMIP6StatusChecker(object):
+class MIPStatusChecker(object):
 
     def __init__(self,
-                 chain=config.chain,
-                 configuration=config.configuration,
-                 api_url=config.query_api_url,
-                 requester=None):
+                 configuration=config.configuration):
         self._configuration = configuration
-        self._chain = chain
-        self._api_url = api_url
-        self._requester = requester or util.get_user_name()
-        
+        self._api_url_root = None        
+
+
     def _parse_args(self, arg_list=None):
 
         "Parses arguments and returns parsed args object."
 
         dataset_spec_help = ("This should be the dataset identifier (dot-separated "
                              "string of facet sending .v<version>), e.g. as reported by "
-                             "add-to-cmip6 although a directory path with the format "
+                             "add-mip-dataset although a directory path with the format "
                              "${BASEDIR}/${DRS_DIRS}/${VERSION_DIR} "
                              "will be accepted as an alternative. "
                              "Any number of dataset IDs may be specified.")
@@ -42,6 +38,10 @@ class CMIP6StatusChecker(object):
                                                   var_help=dataset_spec_help,
                                                   description=__doc__,
                                                   allow_empty_list=True)
+
+        util.add_project_arg(parser)
+        parser.add_standard_arguments()
+        util.add_api_root_arg(parser)
 
         group = parser.add_mutually_exclusive_group()
         group.add_argument('--json', '-j', metavar='filename', 
@@ -56,6 +56,9 @@ class CMIP6StatusChecker(object):
                             help=('Show all your datasets with the specified status. (Must be one of {}.) '
                                   'This argument should be used in place of specifying the dataset IDs.'
                                   ).format(_statuses))
+
+        parser.add_argument('--requester', type=str, metavar='requester',
+                            help='show datasets for another requester')
 
         args = parser.parse_args(arg_list or sys.argv[1:])
 
@@ -73,7 +76,7 @@ class CMIP6StatusChecker(object):
         "Turn a dataset spec (dataset ID or doc string) into a dataset ID"
 
         if '/' in dataset_spec:
-            dataset_id = dataset_drs.dir_to_dataset_id(dataset_spec)
+            dataset_id = self._drs.dir_to_dataset_id(dataset_spec)
             if dataset_id == None:
                 raise ValueError(("{} looks like a directory but cannot be mapped into a dataset ID"
                                   ).format(dataset_spec))
@@ -81,16 +84,15 @@ class CMIP6StatusChecker(object):
                 return dataset_id
         elif '*' in dataset_spec:
             raise ValueError('wildcard in dataset spec is not supported')
-        elif dataset_drs.plausible_dataset_id(dataset_spec):
+        elif self._drs.plausible_dataset_id(dataset_spec):
             return dataset_spec
 
         else:
-            raise ValueError(("{} does not looks like a valid CMIP6 dataset identifier"
+            raise ValueError(("{} does not looks like a valid dataset identifier"
                               ).format(dataset_spec))
 
 
     def _get_dataset_ids(self, args):
-        
         return [self._get_dataset_id(spec) for spec in args.dataset_specs]
 
 
@@ -156,18 +158,26 @@ class CMIP6StatusChecker(object):
 
     def _get_response(self, query_params):
         
-        return util.do_post_expecting_json(self._api_url,
+        return util.do_post_expecting_json(self._api_url_root + config.api_query_suffix,
                                            query_params,
-                                           description='CMIP6 publication system',
+                                           description='publication system',
                                            compulsory_fields=('datasets', 'num_found'))
 
     def run(self):
         try:
             args = self._parse_args()
+            self._drs, self._chain = util.parse_project_arg(args)
             dataset_ids = self._get_dataset_ids(args)
         except ValueError as exc:
             print(exc)
             sys.exit(1)
+
+        self._api_url_root = args.api_url_root
+
+        if args.requester:
+            self._requester = args.requester
+        else:
+            self._requester = util.get_user_name()
 
         dataset_ids = self._get_dataset_ids(args)
         
@@ -206,7 +216,7 @@ class _ResultsWriter(object):
 
     def dump(self, writer=print):
         if self.results:
-            writer("Publication status for {} CMIP6 datasets:".format(len(self.results)))
+            writer("Publication status for {} MIP datasets:".format(len(self.results)))
             width = max((len(dsid) for dsid, status in self.results))
             formatter = "{:5}  {:{width}}  {}".format
             writer(formatter(*self._headers, width=width))
@@ -253,8 +263,8 @@ class _ResultsWriter(object):
 
 
 def main():
-    c6sc = CMIP6StatusChecker()
-    c6sc.run()
+    checker = MIPStatusChecker()
+    checker.run()
     
 
 

@@ -1,28 +1,27 @@
 """
-Adds CMIP6 dataset(s) for ingestion to CEDA archive and publication to ESGF.
+Adds MIP dataset(s) for ingestion to CEDA archive and publication to ESGF.
 """
 
 import os
 import sys
 
-from ceda_cmip6_tools import config, util, dataset_drs
-from ceda_cmip6_tools.permissions_checker import UserPermissionsChecker
+from ceda_mip_tools import config, util
+from ceda_mip_tools.permissions_checker import UserPermissionsChecker
 
 
-class CMIP6Adder(object):
+class MIPAdder(object):
 
     def __init__(self,
-                 chain=config.chain,
                  configuration=config.configuration,
-                 api_url=config.add_api_url,
+                 api_url_root=config.api_url_root,
                  requester=None):
-        self._chain = chain
         self._configuration = configuration
-        self._api_url = api_url
+        self._api_add_url = api_url_root + config.api_add_suffix
         self._requester = requester or util.get_user_name()
-        
         self._perms_checker = UserPermissionsChecker(config.ingestion_user)
-
+        self._api_url_root = None
+        self._chain = None
+        self._drs = None
 
     def _parse_args(self, arg_list=None):
 
@@ -37,6 +36,10 @@ class CMIP6Adder(object):
                                                   var_help=dirs_help,
                                                   description=__doc__)
 
+        util.add_project_arg(parser)
+        parser.add_standard_arguments()
+        util.add_api_root_arg(parser)
+
         args = parser.parse_args(arg_list or sys.argv[1:])
 
         return args
@@ -49,7 +52,7 @@ class CMIP6Adder(object):
         """
 
         # check the directory name
-        dataset_id = dataset_drs.dir_to_dataset_id(path)
+        dataset_id = self._drs.dir_to_dataset_id(path)
         if dataset_id == None:
             raise Exception("{} does not look like valid DRS path".format(path))
 
@@ -112,22 +115,21 @@ class CMIP6Adder(object):
 
 
     def _add_dataset_dir(self, path, dataset_id):
-        "adds specified dataset directory to CREPP and parse the response"
+        "adds specified dataset directory to publication system and parse the response"
        
-        url = self._api_url
-
         params = {'chain': self._chain,
                   'config': self._configuration,
                   'dataset_id': dataset_id,
                   'directory': path,
                   'requester': self._requester}
         
-        fields = util.do_post_expecting_json(url, params,
-                                             description='CMIP6 publication system',
+        fields = util.do_post_expecting_json(self._api_url_root + config.api_add_suffix,
+                                             params,
+                                             description='publication system',
                                              compulsory_fields=('status',))
         
         if fields['status'] != 0:
-            message = 'CMIP6 publication system did not accept dataset'
+            message = 'publication system did not accept dataset'
             try:
                 message += ': ' + fields['message']
             except KeyError:
@@ -137,6 +139,9 @@ class CMIP6Adder(object):
 
     def run(self):
         args = self._parse_args()
+        self._drs, self._chain = util.parse_project_arg(args)
+        self._api_url_root = args.api_url_root
+
         for path in args.dirs:
             print()
             try:
@@ -153,6 +158,6 @@ class CMIP6Adder(object):
         print()
 
 def main():
-    c6a = CMIP6Adder()
-    c6a.run()
+    adder = MIPAdder()
+    adder.run()
     
