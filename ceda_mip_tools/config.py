@@ -6,8 +6,7 @@ api_query_suffix = 'dataset/'
 
 max_query_datasets = 200
 max_requester_len = 32
-#ingestion_user = 'badc'
-ingestion_user = 'iwi'
+ingestion_user = 'badc'
 timeout = 5.
 
 
