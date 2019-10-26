@@ -4,7 +4,7 @@ import sys
 import argparse
 import requests
 
-import ceda_cmip6_tools.config as config
+from ceda_mip_tools import config, dataset_drs
 
 
 def get_user_name():
@@ -55,7 +55,9 @@ class ArgsFromCmdLineOrFileParser(object):
                                               var_help=help_about_thing,
                                               description=description_of_command)
 
-        parser.add_argument('other_arg')
+        parser.add_argument('some_initial_positional_arg')
+        parser.add_standard_arguments()
+        parser.add_argument('some_other_keyword_arg')
 
         args = parser.parse_args(sys.argv[1:])
 
@@ -72,6 +74,9 @@ class ArgsFromCmdLineOrFileParser(object):
         self._file_opt = '--from-file'
         self._file_short_opt = '-f'
         self._parser = argparse.ArgumentParser(**kwargs)
+
+
+    def add_standard_arguments(self):
         self._add_positional_argument()
         self._add_file_argument()
 
@@ -136,3 +141,31 @@ class ArgsFromCmdLineOrFileParser(object):
             raise ValueError(('no {} specified - must specify one or more on command line '
                               'or with {} option'
                               ).format(self._var_desc, self._file_opt))
+
+
+
+def add_api_root_arg(parser):
+    parser.add_argument('--api-url-root',
+                        default=config.api_url_root,
+                        help=argparse.SUPPRESS)
+
+
+def add_project_arg(parser):
+    parser.add_argument('project', type=str, metavar='project',
+                        help='project',
+                        choices=config.projects.keys())
+
+def parse_project_arg(args):
+
+    valid_projects = sorted(config.projects.keys())
+
+#    if not args.project or args.project not in valid_projects:
+#        raise ValueError("one of these projects: must be specified {}"
+#                         .format(", ".join(valid_projects)))
+#
+    project_config = config.projects[args.project]
+
+    drs_obj = dataset_drs.DatasetDRS(project_config["drs"])
+    chain = project_config["chain"]
+
+    return(drs_obj, chain)

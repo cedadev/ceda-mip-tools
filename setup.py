@@ -3,17 +3,17 @@ __license__ = "BSD - see LICENCE file in top-level package directory"
 
 from setuptools import setup, find_packages
 
-from ceda_cmip6_tools import __version__ as _package_version
+from ceda_mip_tools import __version__ as _package_version
 
 setup(
-    name='ceda_cmip6_tools',
+    name='ceda_mip_tools',
     version=_package_version,
-    description='CEDA CMIP6 tools',
-    url='https://github.com/cedadev/ceda_cmip6_tools/',
-    license='BSD - See ceda_cmip6_tools/LICENCE file for details',
+    description='CEDA MIP tools',
+    url='https://github.com/cedadev/ceda_mip_tools/',
+    license='BSD - See ceda_mip_tools/LICENCE file for details',
     packages=find_packages(),
     package_data={
-        'ceda_cmip6_tools': [
+        'ceda_mip_tools': [
             'LICENCE',
         ],
     },
@@ -26,8 +26,8 @@ setup(
     zip_safe=False,
     entry_points={
         'console_scripts': [
-            'add-to-cmip6 = ceda_cmip6_tools.add_to_cmip6:main',
-            'cmip6-dataset-status = ceda_cmip6_tools.cmip6_dataset_status:main'
+            'add-to-mip = ceda_mip_tools.add_mip_dataset:main',
+            'mip-dataset-status = ceda_mip_tools.mip_dataset_status:main'
             ],
         }
 )
