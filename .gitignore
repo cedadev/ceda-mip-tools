@@ -3,3 +3,4 @@ dist
 __pycache__
 ceda_mip_tools.egg-info
 *~
+*.pyc
