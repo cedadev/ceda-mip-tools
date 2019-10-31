@@ -63,7 +63,7 @@ class DatasetDRS(object):
 
         
 if __name__ == '__main__':
-    import ceda_mip_tools.config as config
+    import config
     drs_config = config.projects["CMIP6"]["drs"]
     d = DatasetDRS(drs_config)
     print(d.dir_to_dataset_id('/tmp/alantest/data/CMIP6/CMIP/NOAA-GFDL/GFDL-AM4/amip/r1i1p1f1/AERmon/pfull/gr1/v20180807'))

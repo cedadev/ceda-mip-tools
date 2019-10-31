@@ -5,8 +5,8 @@ Adds MIP dataset(s) for ingestion to CEDA archive and publication to ESGF.
 import os
 import sys
 
-from ceda_mip_tools import config, util
-from ceda_mip_tools.permissions_checker import UserPermissionsChecker
+from ceda_mip_tools.pub_sys_intfc import config, util
+from ceda_mip_tools.pub_sys_intfc.permissions_checker import UserPermissionsChecker
 
 
 class MIPAdder(object):

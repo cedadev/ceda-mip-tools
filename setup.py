@@ -17,7 +17,7 @@ setup(
             'LICENCE',
         ],
     },
-    install_requires=['requests'],
+    install_requires=['requests', 'netCDF4'],
     
     # This qualifier can be used to selectively exclude Python versions - 
     # in this case early Python 2 and 3 releases
@@ -26,8 +26,9 @@ setup(
     zip_safe=False,
     entry_points={
         'console_scripts': [
-            'add-to-mip = ceda_mip_tools.add_mip_dataset:main',
-            'mip-dataset-status = ceda_mip_tools.mip_dataset_status:main'
+            'add-to-mip = ceda_mip_tools.pub_sys_intfc.add_mip_dataset:main',
+            'mip-dataset-status = ceda_mip_tools.pub_sys_intfc.mip_dataset_status:main',
+            'restructure-for-cmip6 = ceda_mip_tools.restructure_for_cmip6.restructure_for_cmip6:main'
             ],
         }
 )

@@ -4,7 +4,7 @@ import sys
 import argparse
 import requests
 
-from ceda_mip_tools import config, dataset_drs
+from ceda_mip_tools.pub_sys_intfc import config, dataset_drs
 
 
 def get_user_name():

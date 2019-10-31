@@ -9,7 +9,7 @@ import argparse
 import json
 import csv
 
-from ceda_mip_tools import config, util
+from ceda_mip_tools.pub_sys_intfc import config, util
 
 
 _statuses = ['not_started', 'in_progress', 'completed', 'failed', 'ALL']
