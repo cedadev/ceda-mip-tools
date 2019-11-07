@@ -28,8 +28,11 @@ class MIPAdder(object):
         "Parses arguments and returns parsed args object."
 
         dirs_help = ("Dataset directory. "
-                     "Must have format ${BASEDIR}/${DRS_DIRS}/${VERSION_DIR}. "
-                     "Any number of directories may be specified.")
+                     "Must have format ${BASEDIR}/${DRS_DIRS}/${VERSION_DIR} "
+                     "and any number of directories may be specified,"
+                     "except that if --dataset-id is specified then only "
+                     "one directory may be specified but there is no requirement "
+                     "regarding its format.")
 
         parser = util.ArgsFromCmdLineOrFileParser('dirs', 'dataset directories', 
                                                   var_meta='directory',
@@ -40,22 +43,44 @@ class MIPAdder(object):
         parser.add_standard_arguments()
         util.add_api_root_arg(parser)
 
+        parser.add_argument("--dataset-id", "-d", type=str,
+                            metavar='dataset_id',
+                            help='dataset ID (including .v<version> part)')
+
         args = parser.parse_args(arg_list or sys.argv[1:])
+
+        if args.dataset_id and len(args.dirs) != 1:
+            parser.error("Only one directory can be specified with --dataset-id")
 
         return args
 
     
+    def _get_dataset_id(self, path, dataset_id=None):
+        """
+        returns the dataset ID implied by the path, but if dataset_id is specified,
+        then just return that instead
+
+        but in either case, raises an exception if it does not look like a valid dataset 
+        ID
+        """
+        
+        if dataset_id == None:
+
+            dataset_id = self._drs.dir_to_dataset_id(path)
+            if dataset_id == None:
+                raise Exception("{} does not look like valid DRS path".format(path))
+
+        else:
+            if not self._drs.plausible_dataset_id(dataset_id):
+                raise Exception("'{}' does not look like valid dataset ID".format(dataset_id))
+        
+        return dataset_id
+
+
     def _validate_dataset_dir(self, path):
         """
         check that the files under the dataset directory are ingestable
-        and returns the dataset ID implied by the path
         """
-
-        # check the directory name
-        dataset_id = self._drs.dir_to_dataset_id(path)
-        if dataset_id == None:
-            raise Exception("{} does not look like valid DRS path".format(path))
-
 
         # check that everything is readable by the ingestion user
         errors = False
@@ -68,6 +93,9 @@ class MIPAdder(object):
             'permissions': permissions,
             'continue_on_error': True 
             }
+
+        if not os.path.isdir(path):
+            raise Exception("not a directory")
 
         if not self._perms_checker.check_access(path, 'rx', **checker_args):
             errors = True
@@ -111,8 +139,6 @@ class MIPAdder(object):
 
             raise Exception(message)
 
-        return dataset_id
-
 
     def _add_dataset_dir(self, path, dataset_id):
         "adds specified dataset directory to publication system and parse the response"
@@ -141,21 +167,32 @@ class MIPAdder(object):
         args = self._parse_args()
         self._drs, self._chain = util.parse_project_arg(args)
         self._api_url_root = args.api_url_root
+        errors = False
 
         for path in args.dirs:
             print()
             try:
-                dataset_id = self._validate_dataset_dir(path)
+                dataset_id = self._get_dataset_id(path, args.dataset_id)
+            except Exception as exc:
+                print("ERROR: getting dataset ID: {}".format(exc))
+                errors = True
+                continue
+            try:
+                self._validate_dataset_dir(path)
             except Exception as exc:
                 print("ERROR: validating dataset directory {}: {}".format(path, exc))
+                errors = True
                 continue
             try:
                 self._add_dataset_dir(path, dataset_id)
             except Exception as exc:
                 print("ERROR: adding directory {} as ID {}: {}".format(path, dataset_id, exc))
+                errors = True
                 continue
             print("INFO: added directory {}\n(dataset id = {}".format(path, dataset_id))
         print()
+        sys.exit(1 if errors else 0)
+
 
 def main():
     adder = MIPAdder()
