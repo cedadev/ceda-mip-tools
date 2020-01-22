@@ -169,7 +169,12 @@ class MIPAdder(object):
         self._api_url_root = args.api_url_root
         errors = False
 
+        cwd = os.getcwd()
         for path in args.dirs:
+            # convert to full path
+            if not path.startswith("/"):
+                path = os.path.normpath(os.path.join(cwd, path))
+
             print()
             try:
                 dataset_id = self._get_dataset_id(path, args.dataset_id)
