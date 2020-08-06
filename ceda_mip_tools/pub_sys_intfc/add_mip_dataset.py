@@ -132,7 +132,7 @@ class MIPAdder(object):
             for path, stat_data in permissions:
                 if stat_data.st_uid == 0:
                     drawline = "=" * 80 + "\n"
-                    message += ("\n{}Please email support@ceda.ac.uk "
+                    message += ("\n{}Please email support@jasmin.ac.uk "
                                 "to ask for user '{}' to be given access to\n"
                                 "{}\n{}").format(drawline, config.ingestion_user,
                                                  path, drawline)
