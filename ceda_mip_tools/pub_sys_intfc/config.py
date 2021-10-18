@@ -35,7 +35,7 @@ projects = {
             'facet_allowed_vals': { 0: ['PRIMAVERA'] ,
                                     1: """AerChemMIP C4MIP CDRMIP CFMIP CMIP CORDEX DAMIP DCPP DynVarMIP
                                               FAFMIP GMMIP GeoMIP HighResMIP ISMIP6 LS3MIP LUMIP OMIP PAMIP
-                                              PMIP RFMIP SIMIP ScenarioMIP VIACSAB VolMIP""".split() }
+                                              PMIP RFMIP SIMIP ScenarioMIP VIACSAB VolMIP primWP5""".split() }
             }
         },
 
