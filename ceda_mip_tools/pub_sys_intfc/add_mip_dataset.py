@@ -151,7 +151,7 @@ class MIPAdder(object):
                   'dataset_id': dataset_id,
                   'directory': path,
                   'requester': self._requester,
-                  'replica': replica}
+                  'is_replica': replica}
         
         fields = util.do_post_expecting_json(self._api_url_root + config.api_add_suffix,
                                              params,
