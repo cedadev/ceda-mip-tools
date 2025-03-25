@@ -47,6 +47,9 @@ class MIPAdder(object):
                             metavar='dataset_id',
                             help='dataset ID (including .v<version> part)')
 
+        parser.add_argument("--replica", type='store_true',
+                            help='label the dataset as a replica')
+
         args = parser.parse_args(arg_list or sys.argv[1:])
 
         if args.dataset_id and len(args.dirs) != 1:
@@ -140,14 +143,15 @@ class MIPAdder(object):
             raise Exception(message)
 
 
-    def _add_dataset_dir(self, path, dataset_id):
+    def _add_dataset_dir(self, path, dataset_id, replica):
         "adds specified dataset directory to publication system and parse the response"
        
         params = {'chain': self._chain,
                   'config': self._configuration,
                   'dataset_id': dataset_id,
                   'directory': path,
-                  'requester': self._requester}
+                  'requester': self._requester,
+                  'replica': replica}
         
         fields = util.do_post_expecting_json(self._api_url_root + config.api_add_suffix,
                                              params,
@@ -189,7 +193,7 @@ class MIPAdder(object):
                 errors = True
                 continue
             try:
-                self._add_dataset_dir(path, dataset_id)
+                self._add_dataset_dir(path, dataset_id, args.replica)
             except Exception as exc:
                 print("ERROR: adding directory {} as ID {}: {}".format(path, dataset_id, exc))
                 errors = True
