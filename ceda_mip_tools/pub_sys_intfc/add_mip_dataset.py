@@ -47,7 +47,7 @@ class MIPAdder(object):
                             metavar='dataset_id',
                             help='dataset ID (including .v<version> part)')
 
-        parser.add_argument("--replica", type='store_true',
+        parser.add_argument("--replica", action='store_true',
                             help='label the dataset as a replica')
 
         args = parser.parse_args(arg_list or sys.argv[1:])
