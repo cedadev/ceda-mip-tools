@@ -46,9 +46,10 @@ projects = {
         'drs': {
             'num_facets': 10,
             'facet_allowed_vals': { 0: ['input4MIPs'] ,
-                                    1: ['CMIP6', 'CMIP6Plus'],
-                                    2: """AerChemMIP C4MIP CMIP DAMIP DCPP FAFMIP HighResMIP
-                                       ISMIP6 OMIP PAMIP RFMIP ScenarioMIP""".split() }
+                                    1: ['CMIP6', 'CMIP6Plus', 'CMIP7'],
+                                    2: """AerChemMIP AerChemMIP2 C4MIP CMIP DAMIP DCPP
+                                    FAFMIP HighResMIP ISMIP6 OMIP PAMIP RFMIP ScenarioMIP
+                                    AerChemMIP C4MIP CMIP DAMIP DCPP FAFMIP HighResMIP""".split() }
             }
         },
 
