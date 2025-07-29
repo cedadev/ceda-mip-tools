@@ -40,6 +40,18 @@ projects = {
         },
 
 
+    'EERIE': {
+        'chain': 'EERIE-fromdisk',
+
+        'drs': {
+            'num_facets': 10,
+            'facet_allowed_vals': { 0: ['EERIE'],
+                                    1: ['EERIE'],
+                                    2: ['MOHC']}
+            }
+        },
+
+
     'input4MIPs': {
         'chain': 'input4MIPs-fromdisk',
 
